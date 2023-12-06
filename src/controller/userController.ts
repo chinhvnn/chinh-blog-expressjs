@@ -1,10 +1,13 @@
 import { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
-import User from '../model/User'
-import { PAGE_SIZE, STATUS } from '../constant/constant'
-import { getPageCursor, isValidEmail, isValidId, isValidPassword } from '../helpers/helpers'
+import jwt from 'jsonwebtoken'
+import User, { IUser } from '../model/User'
+import { JWT_CONFIRM_CODE_EXPIRATION, PAGE_SIZE, ROLE, STATUS } from '../constant/constant'
+import { getPageCursor, isValidEmail, isValidId, isValidPassword, isValidRole } from '../helpers/helpers'
 import { mockUsers } from '../helpers/mockData'
+import { sendEmail, sendVerifyUserConfirmCode } from '../helpers/nodemailer'
+import { setRedisValue } from '../helpers/redis'
 
 // Leader only get users of their team
 export const getUsers = (req: Request, res: Response) => {
@@ -12,7 +15,7 @@ export const getUsers = (req: Request, res: Response) => {
   User.find({})
     .skip(pageCursor.start - 1) // skip will be scan all col-data, if remove, let use index and id to find to more performance
     .limit(PAGE_SIZE + 1)
-    .then((data: any[]) => {
+    .then((data: IUser[]) => {
       if (data.length > 0) {
         const pageData = data.length > PAGE_SIZE ? [...data].slice(0, PAGE_SIZE - 1) : data
         res.json({
@@ -35,7 +38,7 @@ export const getUserById = (req: Request, res: Response) => {
   }
 
   User.findById({ _id: req.params._id })
-    .then((data: any[]) => {
+    .then((data: IUser) => {
       if (data) {
         res.json({ status: STATUS.SUCCESS, data })
       } else {
@@ -47,10 +50,16 @@ export const getUserById = (req: Request, res: Response) => {
     })
 }
 
-// Leader only add user of their team
-export const addUser = (req: Request, res: Response) => {
-  if (!isValidPassword(req.body.password) || !isValidEmail(req.body.email)) {
-    return res.status(400).json({ status: STATUS.FAIL, message: 'Invalid email or password format' })
+// This controller is public
+export const registerUser = async (req: Request, res: Response) => {
+  const { email, password, birthDate, name, role }: IUser = req.body
+
+  let validations: string[] = []
+  if (!isValidPassword(password) || !isValidEmail(email)) {
+    validations.push('Invalid email or password format')
+  }
+  if (validations.length > 0) {
+    return res.status(400).json({ status: STATUS.FAIL, message: validations })
   }
 
   const salt = bcrypt.genSaltSync(10)
@@ -60,12 +69,17 @@ export const addUser = (req: Request, res: Response) => {
     _id: new mongoose.Types.ObjectId(),
     email: req.body?.email || '',
     password: hashPassword,
+    birthDate: birthDate || '',
+    name: name || '',
+    role: role,
+    isActive: false,
   })
 
   user
     .save()
     .then((data: any) => {
       res.json({ status: STATUS.SUCCESS, data })
+      sendVerifyUserConfirmCode(data)
     })
     .catch((errors: any) => {
       res.status(500).json({ status: STATUS.FAIL, errors })

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
-import { PAGE_SIZE } from '../constant/constant'
+import { PAGE_SIZE, ROLE, ROLE_LEVEL } from '../constant/constant'
+import { IUser } from '../model/User'
 
 export const isValidId = (_id: string): boolean => mongoose.Types.ObjectId.isValid(_id)
 
@@ -7,6 +8,12 @@ export const isValidEmail = (email: string): boolean =>
   /^[A-Za-z]([\.\+\_\w][\w]+)+@[a-z]\w+\.[a-z]+$/g.test(email || '')
 
 export const isValidPassword = (pw: string): boolean => /.{6,}/g.test(pw || '')
+
+export const isValidRole = (role: string): boolean => Object.keys(ROLE).includes(role)
+
+export const isValidFormRegister = ({ email, password, name, birthDate }: IUser) => {
+  return isValidEmail(email) || isValidPassword(password)
+}
 
 export const formatRedisBlackListTokenKey = (token, userId) => {
   return `inactive-token-${userId}-${token}`

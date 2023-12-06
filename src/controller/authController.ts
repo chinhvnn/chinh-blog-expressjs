@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../model/User'
-import { JWT_EXPIRATION, JWT_HEADER_NAME, REDIS_RESULT, STATUS } from '../constant/constant'
+import { JWT_TOKEN_EXPIRATION, JWT_HEADER_NAME, REDIS_RESULT, STATUS } from '../constant/constant'
 import {
   isValidEmail,
   isValidId,
@@ -32,10 +32,10 @@ export const postLogin = async (req: Request, res: Response) => {
           const user = data.toObject()
           delete user.password
           const token = jwt.sign({ _id: user._id, role: user.role }, process.env.TOKEN_SECRET, {
-            expiresIn: JWT_EXPIRATION,
+            expiresIn: JWT_TOKEN_EXPIRATION,
           })
           // save user token on Redis
-          setRedisValue(formatRedisActiveTokenKey(token, user._id), `"${token}"`, { EX: JWT_EXPIRATION })
+          setRedisValue(formatRedisActiveTokenKey(token, user._id), `"${token}"`, { EX: JWT_TOKEN_EXPIRATION })
             .then((result) => {
               if (result === REDIS_RESULT.OK) {
                 res.json({ status: STATUS.SUCCESS, data: user, token: formatToken(token) })
@@ -92,4 +92,39 @@ export const postLogoutAll = async (req: Request, res: Response) => {
   } else {
     res.status(500).json({ status: STATUS.FAIL })
   }
+}
+
+export const verifyUser = async (req: Request, res: Response) => {
+  const { confirm_code } = req.params as any
+
+  if (!confirm_code) return res.status(401).json({ status: STATUS.FAIL, message: 'Invalid Confirm code' })
+
+  jwt.verify(confirm_code, process.env.TOKEN_SECRET, async (errors, decoded: any) => {
+    if (errors) {
+      return res.status(400).json({ status: STATUS.FAIL, message: errors })
+    } else if (decoded) {
+      const { _id } = decoded
+      try {
+        const currentConfirmCode = await getRedisValue(`confirm-code-${_id}`)
+        if (currentConfirmCode === confirm_code) {
+          const updateUser = await User.updateOne(
+            { _id, isActive: false },
+            {
+              $set: { isActive: true },
+            },
+          )
+          if (updateUser) {
+            await removeRedisValue(`confirm-code-${_id}`)
+            return res.json({ status: STATUS.SUCCESS, data: updateUser })
+          } else {
+            return res.status(500).json({ status: STATUS.FAIL })
+          }
+        } else {
+          return res.status(401).json({ status: STATUS.FAIL, message: 'Access Denied' })
+        }
+      } catch (error) {
+        return res.status(500).json({ status: STATUS.FAIL, message: error })
+      }
+    } else return res.status(401).json({ status: STATUS.FAIL, message: 'Access Denied' })
+  })
 }

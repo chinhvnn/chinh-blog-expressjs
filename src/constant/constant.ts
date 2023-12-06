@@ -1,4 +1,5 @@
-export const JWT_EXPIRATION = 60 * 60 * 24 //second
+export const JWT_TOKEN_EXPIRATION = 60 * 60 * 24 //second
+export const JWT_CONFIRM_CODE_EXPIRATION = 60 * 60 * 24 //second
 export const JWT_HEADER_NAME = 'Authorization'
 
 export const PAGE_SIZE = 3

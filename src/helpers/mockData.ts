@@ -13,6 +13,7 @@ export const mockUsers = async (quantity: number) => {
         birthDate: faker.date.birthdate(),
         password: 123456,
         role: '',
+        isActive: true,
       })
       if (user) userList.push(user)
     }

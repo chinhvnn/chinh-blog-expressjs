@@ -17,7 +17,6 @@ export const setRedisValue = async (key: string, value: string, option = {}) => 
 
 export const getRedisValue = async (key: string) => {
   if (!key) return
-  console.log(key)
 
   try {
     await client.connect()

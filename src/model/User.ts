@@ -3,9 +3,22 @@ import { isValidEmail, isValidPassword } from '../helpers/helpers'
 
 const { Schema } = mongoose
 
+export interface IUser {
+  _id: any
+  email: string
+  password: string
+  name?: string
+  birthDate?: string
+  role?: string
+  isActive?: boolean
+}
+
 const userSchema = new Schema(
   {
-    _id: Schema.Types.ObjectId,
+    _id: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
@@ -16,25 +29,26 @@ const userSchema = new Schema(
         message: 'Invalid email format',
       },
     },
-    name: {
-      type: String,
-    },
     password: {
       type: String,
+      required: true,
       validate: {
         validator: (val) => isValidPassword(val),
         message: 'Password must be at least 6 character',
       },
-      required: true,
+    },
+    name: {
+      type: String,
     },
     birthDate: {
-      type: Date,
+      type: String,
     },
     role: String,
+    isActive: Boolean,
   },
   { strict: true },
 )
 
-const User: mongoose.Model<any> = mongoose.model('User', userSchema, 'user')
+const User: mongoose.Model<IUser> = mongoose.model('User', userSchema, 'user')
 
 export default User
