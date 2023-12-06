@@ -7,7 +7,7 @@ import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import { createClient } from 'redis'
 import adminV1Router from './routes/api/v1/adminV1Router'
-import userV1Router from './routes/api/v1/publicV1Router'
+import publicV1Router from './routes/api/v1/publicV1Router'
 import webRouter from './routes/web/webRouter'
 import redis from 'redis'
 import { STATUS } from './constant/constant'
@@ -30,7 +30,7 @@ app.use(express.static(path.join(___dirname, 'public')))
 mongoose.connect(process.env.MONGODB_URI)
 
 app.use('/', webRouter)
-app.use('/api/v1', userV1Router)
+app.use('/api/v1', publicV1Router)
 app.use('/api/v1/admin', adminV1Router)
 
 // catch 404 and forward to error handler

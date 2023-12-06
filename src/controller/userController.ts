@@ -6,18 +6,18 @@ import { PAGE_SIZE, STATUS } from '../constant/constant'
 import { getPageCursor, isValidEmail, isValidId, isValidPassword } from '../helpers/helpers'
 import { mockUsers } from '../helpers/mockData'
 
+// Leader only get users of their team
 export const getUsers = (req: Request, res: Response) => {
-  // Leader only get users of their team
   const pageCursor = getPageCursor(req.query.page)
   User.find({})
-    .skip(pageCursor.start - 1)
+    .skip(pageCursor.start - 1) // skip will be scan all col-data, if remove, let use index and id to find to more performance
     .limit(PAGE_SIZE + 1)
     .then((data: any[]) => {
       if (data.length > 0) {
-        const pageData = data.length > PAGE_SIZE ? [...data].pop() : data
+        const pageData = data.length > PAGE_SIZE ? [...data].slice(0, PAGE_SIZE - 1) : data
         res.json({
           status: STATUS.SUCCESS,
-          data: { users: pageData, pageInfo: { ...pageCursor, hasNextPage: data.length > PAGE_SIZE } },
+          data: { users: pageData, pageInfo: { ...pageCursor, hasNextPages: data.length > PAGE_SIZE } },
         })
       } else {
         res.json({ status: STATUS.NOT_FOUND, data })
@@ -28,12 +28,12 @@ export const getUsers = (req: Request, res: Response) => {
     })
 }
 
+// Leader only get user of their team
 export const getUserById = (req: Request, res: Response) => {
   if (!isValidId(req.params._id)) {
     return res.status(400).json({ status: STATUS.FAIL, errors: 'Invalid id' })
   }
 
-  // Leader only get user of their team
   User.findById({ _id: req.params._id })
     .then((data: any[]) => {
       if (data) {
@@ -47,6 +47,7 @@ export const getUserById = (req: Request, res: Response) => {
     })
 }
 
+// Leader only add user of their team
 export const addUser = (req: Request, res: Response) => {
   if (!isValidPassword(req.body.password) || !isValidEmail(req.body.email)) {
     return res.status(400).json({ status: STATUS.FAIL, message: 'Invalid email or password format' })
@@ -55,7 +56,6 @@ export const addUser = (req: Request, res: Response) => {
   const salt = bcrypt.genSaltSync(10)
   const hashPassword = bcrypt.hashSync(req.body.password, salt)
 
-  // Leader only add user of their team
   const user = new User({
     _id: new mongoose.Types.ObjectId(),
     email: req.body?.email || '',
@@ -72,12 +72,12 @@ export const addUser = (req: Request, res: Response) => {
     })
 }
 
+// Leader only delete user of their team
 export const deleteUser = (req: Request, res: Response) => {
   if (!isValidId(req.body._id)) {
     return res.send(400).json({ message: STATUS.FAIL, errors: 'Invalid id' })
   }
 
-  // Leader only delete user of their team
   User.findByIdAndDelete({ _id: req.body._id })
     .then((data: any) => {
       if (data.deletedCount) {

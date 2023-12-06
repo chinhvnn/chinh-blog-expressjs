@@ -1,8 +1,8 @@
 import express, { Router } from 'express'
 import { postLogin } from '../../../controller/authController'
 
-const userV1Router: Router = express.Router()
+const publicV1Router: Router = express.Router()
 
-userV1Router.post('/login', postLogin)
+publicV1Router.post('/login', postLogin)
 
-export default userV1Router
+export default publicV1Router
