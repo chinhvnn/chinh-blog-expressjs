@@ -14,8 +14,30 @@ import { ROLE_LEVEL } from '../../../constant/constant'
 const adminV1Router: Router = express.Router()
 
 adminV1Router.use(authMiddleware)
-
+/**
+ * @swagger
+ * /logout:
+ *      post:
+ *          summary: Logout
+ *          tags:
+ *              - api/v1
+ *          description: Logout to account.
+ *          responses:
+ *              201:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  status:
+ *                                      type: string
+ *                                      example: success
+ *              500:
+ *                  description: Internal server error
+ */
 adminV1Router.post('/logout', postLogout)
+
 adminV1Router.post('/logout-all', permit(ROLE_LEVEL.ADMIN), postLogoutAll)
 
 adminV1Router.get('/users', permit(ROLE_LEVEL.LEADER), getUsers)
