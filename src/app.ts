@@ -11,6 +11,7 @@ import webRouter from './routes/web/webRouter'
 import { STATUS, swaggerOptions } from './constant/constant'
 import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
+import { authMiddleware } from './middleware/middleware'
 
 const app = express()
 dotenv.config()
@@ -41,6 +42,7 @@ try {
 app.use('/', webRouter)
 app.use('/api/v1', publicV1Router)
 app.use('/api/v1/admin', adminV1Router)
+// app.use('/api-docs', authMiddleware, swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 // catch 404 and forward to error handler
