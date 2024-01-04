@@ -1,7 +1,7 @@
 'use strict'
 import nodemailer from 'nodemailer'
 import jwt from 'jsonwebtoken'
-import { JWT_CONFIRM_CODE_EXPIRATION } from '../constant/constant'
+import { ENDPOINT, JWT_CONFIRM_CODE_EXPIRATION } from '../constant/constant'
 import { setRedisValue } from './redis'
 
 export const sendEmail = async (email: string, subject: string, text = '', html = '') => {
@@ -30,8 +30,8 @@ export const sendEmail = async (email: string, subject: string, text = '', html 
 
 export const sendVerifyUserConfirmCode = async (userData) => {
   try {
-    if (userData && userData._id) {
-      const confirmToken = jwt.sign({ _id: userData._id }, process.env.CONFIRM_CODE_SECRET, {
+    if (userData && userData.email) {
+      const confirmToken = jwt.sign({ email: userData.email }, process.env.CONFIRM_CODE_SECRET, {
         expiresIn: JWT_CONFIRM_CODE_EXPIRATION,
       })
       sendEmail(
@@ -40,11 +40,11 @@ export const sendVerifyUserConfirmCode = async (userData) => {
         'Sign-Up Confirmation',
         `<p>Did you sign in to 9h's blog?</p>
         <p>If yes, here is your authorization code:</p>
-        <p><b>http://localhost:3000/api/v1/verify-user/${confirmToken}</b></p>
+        <p><b>${ENDPOINT}/verify-user/${confirmToken}</b></p>
         <p>It expires in 5 minutes.</p>`,
       ).then((emailResult) => {
         if (emailResult) {
-          setRedisValue(`confirm-code-${userData._id}`, confirmToken, { EX: JWT_CONFIRM_CODE_EXPIRATION })
+          setRedisValue(`confirm-code-${userData.email}`, confirmToken, { EX: JWT_CONFIRM_CODE_EXPIRATION })
         }
       })
     }

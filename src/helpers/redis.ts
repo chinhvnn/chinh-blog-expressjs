@@ -1,7 +1,11 @@
 import { SetOptions, createClient } from 'redis'
 
 const client = createClient({
-  url: process.env.REDIS_URI,
+  password: 'epwvevYuIAzGrVMahHcHDCkkgWh9vTOP', //process.env.REDIS_PASSWORD
+  socket: {
+    host: 'redis-14152.c302.asia-northeast1-1.gce.cloud.redislabs.com', //process.env.REDIS_URI
+    port: 14152,
+  },
 })
 
 export const setRedisValue = async (key: string, value: string, option = {}) => {
