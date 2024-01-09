@@ -32,7 +32,7 @@ const swaggerSpec = swaggerJSDoc(swaggerOptions(__dirname || ''))
 
 // connect to Mongodb
 try {
-  mongoose.connect(process.env.MONGODB_URI)
+  mongoose.connect(process.env.MONGODB_URI || '')
   mongoose.connection.on('open', () => {
     console.log('Connect to MongoDB successfully')
   })
