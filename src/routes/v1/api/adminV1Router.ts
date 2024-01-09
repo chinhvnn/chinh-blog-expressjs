@@ -6,10 +6,10 @@ import {
   getUsers,
   mockUsersController,
   updateUser,
-} from '../../../controller/userController'
-import { postLogout, postLogoutAll } from '../../../controller/authController'
-import { authMiddleware, permitMiddleware as permit } from '../../../middleware/middleware'
-import { ROLE_LEVEL } from '../../../constant/constant'
+} from '../../../v1/controller/userController'
+import { postLogout, postLogoutAll } from '../../../v1/controller/authController'
+import { authMiddleware, permitMiddleware as permit } from '../../../v1/middleware/middleware'
+import { ROLE_LEVEL } from '../../../v1/constant/constant'
 
 const adminV1Router: Router = express.Router()
 

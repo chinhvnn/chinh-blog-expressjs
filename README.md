@@ -20,32 +20,36 @@
 
 #### Install node version manager (nvm) by typing the following at the command line.
 
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+`curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash`
 
 #### Install node 18
 
-nvm install 18
+`nvm install 18`
 
-npm -v
+`sudo ufw enable`
 
-node -v
+`sudo ufw allow 3000`
 
 #### Install git
 
-sudo yum update -y
+sudo yum update -y (sudo apt-get update)
 
-sudo yum install git -y
+sudo yum install git -y (sudo apt-get install git)
 
 git version
 
 #### Install mongodb
 
-sudo yum install -y mongodb-org
+...
+
+### Run app in background using PM2
+
+`sudo npm i pm2 -g`
 
 #### Clone repo
 
-git clone
+`git clone https://github.com/chinhvnn/blog-expressjs.git`
 
-npm i
+`npm i`
 
-npm start
+`sudo pm2 start ./src/bin/www.ts --name <demo-name>`

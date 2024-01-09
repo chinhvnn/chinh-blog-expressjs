@@ -1,6 +1,6 @@
 import express, { Router } from 'express'
-import { postLogin, sendVerifyUserConfirmCodeToEmail, verifyUser } from '../../../controller/authController'
-import { registerUser } from '../../../controller/userController'
+import { postLogin, sendVerifyUserConfirmCodeToEmail, verifyUser } from '../../../v1/controller/authController'
+import { registerUser } from '../../../v1/controller/userController'
 
 const publicV1Router: Router = express.Router()
 
