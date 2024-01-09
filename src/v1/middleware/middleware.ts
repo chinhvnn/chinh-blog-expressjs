@@ -4,12 +4,12 @@ import { getRedisValue } from '../helpers/redis'
 import { JWT_HEADER_NAME, STATUS } from '../constant/constant'
 import { formatRedisBlackListTokenKey, getTokenFromHeader } from '../helpers/helpers'
 
-export const authMiddleware = async (req: Request, res: Response, next) => {
-  const token = getTokenFromHeader(req.header(JWT_HEADER_NAME))
+export const authMiddleware = async (req: Request, res: Response, next: any) => {
+  const token = getTokenFromHeader(req.header(JWT_HEADER_NAME || '') || '')
 
   if (!token) return res.status(401).json({ status: STATUS.FAIL, message: 'Access Denied' })
 
-  jwt.verify(token, process.env.TOKEN_SECRET, async (errors, decoded: any) => {
+  jwt.verify(token, process.env.TOKEN_SECRET || '', async (errors: any, decoded: any) => {
     if (errors) {
       return res.status(400).json({ status: STATUS.FAIL, message: errors })
     } else if (decoded) {

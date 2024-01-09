@@ -1,20 +1,22 @@
 'use strict'
-import nodemailer from 'nodemailer'
+import nodemailer, { TransportOptions } from 'nodemailer'
 import jwt from 'jsonwebtoken'
 import { ENDPOINT, JWT_CONFIRM_CODE_EXPIRATION } from '../constant/constant'
 import { setRedisValue } from './redis'
 
 export const sendEmail = async (email: string, subject: string, text = '', html = '') => {
+  const host = { component: process.env.MAILER_HOST || '' }
+
   try {
     const transporter = nodemailer.createTransport({
       host: process.env.MAILER_HOST,
-      port: process.env.MAILER_PORT, //TLS use port 465/587/25
+      port: Number(process.env.MAILER_PORT) || 0, //TLS use port 465/587/25
       secure: process.env.MAILER_SECURE, //if true TLS is enabled
       auth: {
         user: process.env.MAILER_USER,
         pass: process.env.MAILER_PASSWORD,
       },
-    })
+    } as TransportOptions)
 
     return await transporter.sendMail({
       from: process.env.MAILER_SUBJECT, // sender address
@@ -28,10 +30,10 @@ export const sendEmail = async (email: string, subject: string, text = '', html 
   }
 }
 
-export const sendVerifyUserConfirmCode = async (userData) => {
+export const sendVerifyUserConfirmCode = async (userData: any) => {
   try {
     if (userData && userData.email) {
-      const confirmToken = jwt.sign({ email: userData.email }, process.env.CONFIRM_CODE_SECRET, {
+      const confirmToken = jwt.sign({ email: userData.email }, process.env.CONFIRM_CODE_SECRET || '', {
         expiresIn: JWT_CONFIRM_CODE_EXPIRATION,
       })
       sendEmail(

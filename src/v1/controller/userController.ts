@@ -38,7 +38,7 @@ export const getUserById = (req: Request, res: Response) => {
   }
 
   User.findById({ _id: req.params._id })
-    .then((data: IUser) => {
+    .then((data: any) => {
       if (data) {
         res.json({ status: STATUS.SUCCESS, data })
       } else {

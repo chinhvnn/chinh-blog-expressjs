@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker'
 import User from '../model/User'
 
 export const mockUsers = async (quantity: number) => {
-  let userList = []
+  let userList = [] as any
   try {
     for (let index = 0; index < quantity; index++) {
       const user = await User.create({

@@ -52,7 +52,7 @@ export const renameRedisKey = async (key: string, newKey: string) => {
   return await client.rename(key, newKey)
 }
 
-export const getRedisActiveKeyByUserId = async (userId) => {
+export const getRedisActiveKeyByUserId = async (userId: any) => {
   if (!userId) return
 
   try {

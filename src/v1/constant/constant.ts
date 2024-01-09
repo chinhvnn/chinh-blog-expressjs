@@ -27,7 +27,7 @@ export const ROLE_LEVEL = {
   LEADER: [ROLE.ADMIN, ROLE.LEADER],
 }
 
-export const swaggerOptions = (dirname) => {
+export const swaggerOptions = (dirname: string) => {
   return {
     definition: {
       openapi: '3.0.1',

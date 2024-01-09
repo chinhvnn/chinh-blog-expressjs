@@ -25,7 +25,7 @@ const userSchema = new Schema(
       index: true, // db.createIndex()
       unique: true,
       validate: {
-        validator: (val) => isValidEmail(val),
+        validator: (val: any) => isValidEmail(val),
         message: 'Invalid email format',
       },
     },
@@ -33,7 +33,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
       validate: {
-        validator: (val) => isValidPassword(val),
+        validator: (val: string) => isValidPassword(val),
         message: 'Password must be at least 6 character',
       },
     },
@@ -49,6 +49,6 @@ const userSchema = new Schema(
   { strict: true },
 )
 
-const User: mongoose.Model<IUser> = mongoose.model('User', userSchema, 'user')
+const User: mongoose.Model<IUser> = mongoose.model('User', userSchema, 'user') as any
 
 export default User

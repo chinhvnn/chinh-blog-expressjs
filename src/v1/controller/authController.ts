@@ -32,7 +32,7 @@ export const postLogin = async (req: Request, res: Response) => {
         if (bcrypt.compareSync(req.body.password, data.password) && data.isActive) {
           const user = data.toObject()
           delete user.password
-          const token = jwt.sign({ _id: user._id, role: user.role }, process.env.TOKEN_SECRET, {
+          const token = jwt.sign({ _id: user._id, role: user.role }, process.env.TOKEN_SECRET || '', {
             expiresIn: JWT_TOKEN_EXPIRATION,
           })
 
@@ -62,7 +62,7 @@ export const postLogin = async (req: Request, res: Response) => {
 
 // This function is wrapped under the authentication middleware
 export const postLogout = async (req: Request, res: Response) => {
-  const token = getTokenFromHeader(req.header(JWT_HEADER_NAME))
+  const token: any = getTokenFromHeader(req.header(JWT_HEADER_NAME || '') || '')
   // save blacklist token redis value
   const result = await setRedisValue(formatRedisBlackListTokenKey(token, req.body.decodedId), `"${token}"`)
   if (result === REDIS_RESULT.OK) {
@@ -106,7 +106,7 @@ export const sendVerifyUserConfirmCodeToEmail = async (req: Request, res: Respon
   User.findOne({ email: req.body.email })
     .then((data) => {
       if (!data) {
-        sendVerifyUserConfirmCode({ email })
+        sendVerifyUserConfirmCode({ email } as any)
       }
     })
     .catch((err) => {
@@ -119,7 +119,7 @@ export const verifyUser = async (req: Request, res: Response) => {
 
   if (!confirm_code) return res.status(401).json({ status: STATUS.FAIL, message: 'Invalid Confirm code' })
 
-  jwt.verify(confirm_code, process.env.TOKEN_SECRET, async (errors, decoded: any) => {
+  jwt.verify(confirm_code, process.env.TOKEN_SECRET || '', async (errors: any, decoded: any) => {
     if (errors) {
       return res.status(400).json({ status: STATUS.FAIL, message: errors })
     } else if (decoded) {

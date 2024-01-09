@@ -15,11 +15,11 @@ export const isValidFormRegister = ({ email, password, name, birthDate }: IUser)
   return isValidEmail(email) || isValidPassword(password)
 }
 
-export const formatRedisBlackListTokenKey = (token, userId) => {
+export const formatRedisBlackListTokenKey = (token: any, userId: any) => {
   return `inactive-token-${userId}-${token}`
 }
 
-export const formatRedisActiveTokenKey = (token, userId) => {
+export const formatRedisActiveTokenKey = (token: string, userId: any) => {
   return `active-token-${userId}-${token}`
 }
 
@@ -31,7 +31,7 @@ export const getTokenFromHeader = (token: string) => {
   return (token || '').replace('Bearer ', '')
 }
 
-export const getPageCursor = (currentPage) => {
+export const getPageCursor = (currentPage: any) => {
   currentPage = !!parseInt(currentPage) ? parseInt(currentPage) : 1
   const start = currentPage * PAGE_SIZE <= PAGE_SIZE ? 1 : PAGE_SIZE * (currentPage - 1) + 1
   const end = start + PAGE_SIZE - 1
