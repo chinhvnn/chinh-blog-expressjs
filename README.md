@@ -39,7 +39,7 @@ sudo apt-get install -y nodejs`
 
 `git version`
 
-Add new self-hosted runner: `github-runner`
+Add new self-hosted runner
 
 #### Install mongodb
 
