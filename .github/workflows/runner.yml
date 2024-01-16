@@ -1,0 +1,14 @@
+name: Deploy to EC2
+on: [push]
+jobs:
+  Deploy-to-ec2:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Build
+        run: |
+          npm i
+          pm2 restart chinh-blog
