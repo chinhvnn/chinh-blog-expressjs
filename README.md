@@ -14,17 +14,18 @@
 #### Register
 
 - Unique email, hard password
-- Verify user by Email (Nodemailer/SMTP)
+- Verify user by Email by Nodemailer/SMTP (save verify-code in Redis)
 
-## INSTALL
+#### Data
 
-#### Install node version manager (nvm) by typing the following at the command line.
+...
 
-`curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash`
+## INSTALL (Ubuntu) to auto deploy by Github-action
 
 #### Install node 18
 
-`nvm install 18`
+`curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - &&\
+sudo apt-get install -y nodejs`
 
 `sudo ufw enable`
 
@@ -32,11 +33,11 @@
 
 #### Install git
 
-sudo yum update -y (sudo apt-get update)
+`sudo yum update -y (sudo apt-get update)`
 
-sudo yum install git -y (sudo apt-get install git)
+`sudo yum install git -y (sudo apt-get install git)`
 
-git version
+`git version`
 
 #### Install mongodb
 
