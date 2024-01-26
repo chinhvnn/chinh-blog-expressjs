@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import { faker } from '@faker-js/faker'
+
 import User from '../model/User'
 
 export const mockUsers = async (quantity: number) => {

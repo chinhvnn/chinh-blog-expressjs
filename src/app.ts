@@ -5,14 +5,18 @@ import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
+import multer from 'multer'
+import swaggerJSDoc from 'swagger-jsdoc'
+import swaggerUi from 'swagger-ui-express'
+import { initializeApp } from 'firebase/app'
+import { getStorage } from 'firebase/storage'
+import { firebaseConfig } from './config/firebase.config'
+
+import { APP_VERSION } from './config/dev.config'
 import adminV1Router from './routes/v1/api/adminV1Router'
 import publicV1Router from './routes/v1/api/publicV1Router'
 import webRouter from './routes/v1/web/webRouter'
-import { STATUS, swaggerOptions } from './v1/constant/constant'
-import swaggerJSDoc from 'swagger-jsdoc'
-import swaggerUi from 'swagger-ui-express'
-import { authMiddleware } from './v1/middleware/middleware'
-import { APP_VERSION } from './config/dev'
+import { STATUS, swaggerOptions } from './v1/common/constant'
 
 const app = express()
 dotenv.config()
@@ -30,7 +34,7 @@ app.use(express.static(path.join(__dirname || '', 'public')))
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions(__dirname || ''))
 
-// connect to Mongodb
+// Connect to Mongodb
 try {
   mongoose.connect(process.env.MONGODB_URI || '')
   mongoose.connection.on('open', () => {
@@ -40,6 +44,10 @@ try {
   console.log('MongoDB errors', errors)
 }
 
+// Initialize a firebase application
+initializeApp(firebaseConfig)
+
+// Router
 app.use('/', webRouter)
 app.use(`/api/${APP_VERSION}`, publicV1Router)
 app.use(`/api/${APP_VERSION}/admin`, adminV1Router)

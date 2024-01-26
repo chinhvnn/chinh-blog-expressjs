@@ -6,11 +6,17 @@ export const JWT_HEADER_NAME = 'Authorization'
 
 export const PAGE_SIZE = 3
 
-export const STATUS = {
-  SUCCESS: 'success',
-  FAIL: 'fail',
-  NOT_FOUND: 'data not found',
+export enum STATUS {
+  SUCCESS = 'success',
+  FAIL = 'fail',
+  NOT_FOUND = 'data not found',
 }
+
+// export const STATUS = {
+//   SUCCESS: 'success',
+//   FAIL: 'fail',
+//   NOT_FOUND: 'data not found',
+// }
 
 export const REDIS_RESULT = {
   OK: 'OK',
@@ -25,6 +31,11 @@ export const ROLE = {
 export const ROLE_LEVEL = {
   ADMIN: [ROLE.ADMIN, ROLE.LEADER, ROLE.USER],
   LEADER: [ROLE.ADMIN, ROLE.LEADER],
+}
+
+export const TARGET_UPLOAD = {
+  'profile-image': 'profile-image',
+  cv: 'cv',
 }
 
 export const swaggerOptions = (dirname: string) => {

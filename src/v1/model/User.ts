@@ -43,6 +43,9 @@ const userSchema = new Schema(
     birthDate: {
       type: String,
     },
+    profile_img_url: {
+      type: String,
+    },
     role: String,
     isActive: Boolean,
   },
