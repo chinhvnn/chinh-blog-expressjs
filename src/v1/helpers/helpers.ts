@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
-import { PAGE_SIZE, ROLE, ROLE_LEVEL } from '../constant/constant'
+
+import { PAGE_SIZE, ROLE, ROLE_LEVEL, TARGET_UPLOAD } from '../common/constant'
 import { IUser } from '../model/User'
+import { formatCurrentTimestamp } from '../../utils/date-time'
 
 export const isValidId = (_id: string): boolean => mongoose.Types.ObjectId.isValid(_id)
 
@@ -36,4 +38,24 @@ export const getPageCursor = (currentPage: any) => {
   const start = currentPage * PAGE_SIZE <= PAGE_SIZE ? 1 : PAGE_SIZE * (currentPage - 1) + 1
   const end = start + PAGE_SIZE - 1
   return { start, end }
+}
+
+export const getFirebaseStorageUrl = (req): string => {
+  const dateTime = formatCurrentTimestamp()
+  const defaultFirebaseStorageUrl = `images/${req.file.originalname + '_' + dateTime}`
+  let url: string
+
+  console.log(req.body)
+
+  switch (req.params.target) {
+    case 'profile-image':
+      url = `images/profiles/${req.body.decodedId}`
+      break
+
+    default:
+      url = defaultFirebaseStorageUrl
+      break
+  }
+
+  return url
 }

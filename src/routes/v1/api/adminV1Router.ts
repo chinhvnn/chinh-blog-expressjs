@@ -8,10 +8,24 @@ import {
   updateUser,
 } from '../../../v1/controller/userController'
 import { postLogout, postLogoutAll } from '../../../v1/controller/authController'
-import { authMiddleware, permitMiddleware as permit } from '../../../v1/middleware/middleware'
-import { ROLE_LEVEL } from '../../../v1/constant/constant'
+import { authMiddleware, permitMiddleware as permit, uploadMiddleware } from '../../../v1/middleware/middleware'
+import { ROLE_LEVEL } from '../../../v1/common/constant'
+import { uploadSingleFile } from '../../../v1/controller/uploadFileController'
+import { initializeApp } from 'firebase/app'
+import { firebaseConfig } from '../../../config/firebase.config'
+import { getStorage } from 'firebase/storage'
+import multer from 'multer'
 
 const adminV1Router: Router = express.Router()
+
+//Initialize a firebase application
+initializeApp(firebaseConfig)
+
+// Initialize Cloud Storage and get a reference to the service
+const storage = getStorage()
+
+// Setting up multer as a middleware to grab photo uploads
+const upload = multer({ storage: multer.memoryStorage() })
 
 adminV1Router.use(authMiddleware)
 
@@ -20,6 +34,8 @@ adminV1Router.get('/user/:_id', permit(ROLE_LEVEL.LEADER), getUserById)
 adminV1Router.put('/user', permit(ROLE_LEVEL.ADMIN), updateUser)
 adminV1Router.delete('/user', permit(ROLE_LEVEL.ADMIN), deleteUser)
 adminV1Router.post('/mock-user', permit(ROLE_LEVEL.ADMIN), mockUsersController)
+
+adminV1Router.post('/upload-file/:target', uploadMiddleware, uploadSingleFile)
 
 /**
  * @swagger

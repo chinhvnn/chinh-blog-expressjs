@@ -1,8 +1,9 @@
 import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+
 import User from '../model/User'
-import { JWT_TOKEN_EXPIRATION, JWT_HEADER_NAME, REDIS_RESULT, STATUS } from '../constant/constant'
+import { JWT_TOKEN_EXPIRATION, JWT_HEADER_NAME, REDIS_RESULT, STATUS } from '../common/constant'
 import {
   isValidEmail,
   isValidId,

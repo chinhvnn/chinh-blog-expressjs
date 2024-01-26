@@ -2,12 +2,14 @@ import { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+
 import User, { IUser } from '../model/User'
-import { JWT_CONFIRM_CODE_EXPIRATION, PAGE_SIZE, ROLE, STATUS } from '../constant/constant'
+import { JWT_CONFIRM_CODE_EXPIRATION, PAGE_SIZE, ROLE, STATUS } from '../common/constant'
 import { getPageCursor, isValidEmail, isValidId, isValidPassword, isValidRole } from '../helpers/helpers'
 import { mockUsers } from '../helpers/mockData'
 import { sendEmail, sendVerifyUserConfirmCode } from '../helpers/nodemailer'
 import { setRedisValue } from '../helpers/redis'
+import { IResponseJson } from '../common/interfaces'
 
 // Leader only get users of their team
 export const getUsers = (req: Request, res: Response) => {
@@ -21,32 +23,32 @@ export const getUsers = (req: Request, res: Response) => {
         res.json({
           status: STATUS.SUCCESS,
           data: { users: pageData, pageInfo: { ...pageCursor, hasNextPages: data.length > PAGE_SIZE } },
-        })
+        } as IResponseJson)
       } else {
-        res.json({ status: STATUS.NOT_FOUND, data })
+        res.json({ status: STATUS.NOT_FOUND, data } as IResponseJson)
       }
     })
     .catch((errors: any) => {
-      res.status(500).json({ status: STATUS.FAIL, errors })
+      res.status(500).json({ status: STATUS.FAIL, errors } as IResponseJson)
     })
 }
 
 // Leader only get user of their team
 export const getUserById = (req: Request, res: Response) => {
   if (!isValidId(req.params._id)) {
-    return res.status(400).json({ status: STATUS.FAIL, errors: 'Invalid id' })
+    return res.status(400).json({ status: STATUS.FAIL, errors: 'Invalid id' } as IResponseJson)
   }
 
   User.findById({ _id: req.params._id })
     .then((data: any) => {
       if (data) {
-        res.json({ status: STATUS.SUCCESS, data })
+        res.json({ status: STATUS.SUCCESS, data } as IResponseJson)
       } else {
-        res.json({ status: STATUS.NOT_FOUND, data })
+        res.json({ status: STATUS.NOT_FOUND, data } as IResponseJson)
       }
     })
     .catch((errors: any) => {
-      res.status(500).json({ status: STATUS.FAIL, errors })
+      res.status(500).json({ status: STATUS.FAIL, errors } as IResponseJson)
     })
 }
 

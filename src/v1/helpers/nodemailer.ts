@@ -1,7 +1,8 @@
 'use strict'
 import nodemailer, { TransportOptions } from 'nodemailer'
 import jwt from 'jsonwebtoken'
-import { ENDPOINT, JWT_CONFIRM_CODE_EXPIRATION } from '../constant/constant'
+
+import { ENDPOINT, JWT_CONFIRM_CODE_EXPIRATION } from '../common/constant'
 import { setRedisValue } from './redis'
 
 export const sendEmail = async (email: string, subject: string, text = '', html = '') => {
