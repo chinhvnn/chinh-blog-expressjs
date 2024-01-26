@@ -6,6 +6,7 @@ import { getStorage } from 'firebase/storage'
 import { getRedisValue } from '../helpers/redis'
 import { JWT_HEADER_NAME, STATUS, TARGET_UPLOAD } from '../common/constant'
 import { formatRedisBlackListTokenKey, getTokenFromHeader } from '../helpers/helpers'
+import { uploadFileFilter } from '../helpers/uploadFile'
 
 export const authMiddleware = async (req: Request, res: Response, next: any) => {
   const token = getTokenFromHeader(req.header(JWT_HEADER_NAME || '') || '')
@@ -19,7 +20,6 @@ export const authMiddleware = async (req: Request, res: Response, next: any) => 
       const { _id, role } = decoded
       req.body.decodedId = _id
       req.body.decodedRole = role
-      console.log('111', req.body)
 
       const isBlacklistToken = await getRedisValue(formatRedisBlackListTokenKey(token, _id))
 
@@ -42,7 +42,7 @@ export const permitMiddleware = (permittedRoles: string[]) => {
 
 export const uploadMiddleware = async (req: Request, res: Response, next: any) => {
   // Check target
-  if (!req.params.target || !TARGET_UPLOAD.includes(req.params.target)) {
+  if (!req.params.target || !TARGET_UPLOAD[req.params.target]) {
     return res.status(400).json({ status: STATUS.FAIL, message: 'URL not found' })
   }
 
@@ -50,12 +50,12 @@ export const uploadMiddleware = async (req: Request, res: Response, next: any) =
   const storage = getStorage()
 
   // Setting up multer as a middleware to grab photo uploads
-  const upload = multer({ storage: multer.memoryStorage() })
+  const upload = multer({ storage: multer.memoryStorage(), fileFilter: uploadFileFilter })
 
   const decodedId = req.body.decodedId
   const decodedRole = req.body.decodedRole
 
-  upload.single('image')(req as Request, res, (errors) => {
+  upload.single('file')(req as Request, res, (errors) => {
     if (errors instanceof multer.MulterError) {
       // A Multer error occurred when uploading.
       return res.status(400).json({ status: STATUS.FAIL, message: 'A Multer error occurred when uploading', errors })

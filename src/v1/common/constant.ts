@@ -33,7 +33,10 @@ export const ROLE_LEVEL = {
   LEADER: [ROLE.ADMIN, ROLE.LEADER],
 }
 
-export const TARGET_UPLOAD = ['profile-image']
+export const TARGET_UPLOAD = {
+  'profile-image': 'profile-image',
+  cv: 'cv',
+}
 
 export const swaggerOptions = (dirname: string) => {
   return {

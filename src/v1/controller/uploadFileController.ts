@@ -3,9 +3,10 @@ import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/
 
 import { formatCurrentTimestamp } from '../../utils/date-time'
 import { IResponseJson, MulterRequest } from '../common/interfaces'
-import { STATUS } from '../common/constant'
-import { getFirebaseStorageUrl } from '../helpers/helpers'
+import { STATUS, TARGET_UPLOAD } from '../common/constant'
 import User from '../model/User'
+import { Model } from 'mongoose'
+import { getFirebaseStorageUrl } from '../helpers/uploadFile'
 
 export const uploadSingleFile = async (req: any, res: Response) => {
   try {
@@ -59,6 +60,18 @@ export const uploadSingleFile = async (req: any, res: Response) => {
   }
 }
 
-const setDatabase = async (target, _id, url) => {
-  return User.updateOne({ _id }, { profile_img_url: url })
+const setDatabase = (target, _id, url) => {
+  let action
+
+  switch (target) {
+    case TARGET_UPLOAD['profile-image']:
+      action = User.updateOne({ _id }, { profile_img_url: url })
+      break
+
+    default:
+      action = new Promise((resolve, reject) => reject('No database set'))
+      break
+  }
+
+  return action
 }
