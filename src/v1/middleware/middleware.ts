@@ -7,15 +7,16 @@ import { getRedisValue } from '../helpers/redis'
 import { JWT_HEADER_NAME, STATUS, TARGET_UPLOAD } from '../common/constant'
 import { formatRedisBlackListTokenKey, getTokenFromHeader } from '../helpers/helpers'
 import { uploadFileFilter } from '../helpers/uploadFile'
+import { MessageRes } from '../../utils/message-response'
 
 export const authMiddleware = async (req: Request, res: Response, next: any) => {
   const token = getTokenFromHeader(req.header(JWT_HEADER_NAME || '') || '')
 
-  if (!token) return res.status(401).json({ status: STATUS.FAIL, message: 'Access Denied' })
+  if (!token) return res.status(401).json({ status: STATUS.FAIL, message: MessageRes.AccessDenied })
 
   jwt.verify(token, process.env.TOKEN_SECRET || '', async (errors: any, decoded: any) => {
     if (errors) {
-      return res.status(400).json({ status: STATUS.FAIL, message: errors })
+      return res.status(400).json({ status: STATUS.FAIL, message: MessageRes.JWTErrors, errors })
     } else if (decoded) {
       const { _id, role } = decoded
       req.body.decodedId = _id
@@ -25,7 +26,7 @@ export const authMiddleware = async (req: Request, res: Response, next: any) => 
 
       if (!isBlacklistToken) {
         next()
-      } else return res.status(401).json({ status: STATUS.FAIL, message: 'Access Denied' })
+      } else return res.status(401).json({ status: STATUS.FAIL, message: MessageRes.AccessDenied })
     }
   })
 }
@@ -35,7 +36,7 @@ export const permitMiddleware = (permittedRoles: string[]) => {
     if (req.body.decodedRole && permittedRoles.includes(req.body.decodedRole)) {
       next()
     } else {
-      return res.status(401).json({ status: STATUS.FAIL, message: 'Unauthorized' })
+      return res.status(401).json({ status: STATUS.FAIL, message: MessageRes.Unauthorized })
     }
   }
 }
@@ -43,7 +44,7 @@ export const permitMiddleware = (permittedRoles: string[]) => {
 export const uploadMiddleware = async (req: Request, res: Response, next: any) => {
   // Check target
   if (!req.params.target || !TARGET_UPLOAD[req.params.target]) {
-    return res.status(400).json({ status: STATUS.FAIL, message: 'URL not found' })
+    return res.status(400).json({ status: STATUS.FAIL, message: MessageRes.PageNotFound })
   }
 
   // Initialize Cloud Storage and get a reference to the service
