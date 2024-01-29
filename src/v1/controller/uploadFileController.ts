@@ -65,7 +65,7 @@ const setDatabase = (target, _id, url) => {
 
   switch (target) {
     case TARGET_UPLOAD['profile-image']:
-      action = User.updateOne({ _id }, { profile_img_url: url })
+      action = User.updateOne({ _id }, { profileImgUrl: url })
       break
 
     default:
