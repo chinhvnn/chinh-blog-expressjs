@@ -50,7 +50,7 @@ export const uploadSingleFile = async (req: any, res: Response) => {
         })
       })
       .catch((errors: any) => {
-        res.status(500).json({ message: STATUS.FAIL, errors })
+        res.status(500).json({ status: STATUS.FAIL, message: 'Error when save database', errors })
       })
   } catch (error) {
     return res.status(400).json({
