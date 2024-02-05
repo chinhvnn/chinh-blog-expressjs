@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 import { PAGE_SIZE, ROLE, ROLE_LEVEL } from '../common/constant'
-import { IUser } from '../model/User'
+import { IUser } from '../common/interfaces'
 
 export const isValidId = (_id: string): boolean => mongoose.Types.ObjectId.isValid(_id)
 

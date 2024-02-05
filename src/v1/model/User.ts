@@ -1,17 +1,8 @@
 import mongoose from 'mongoose'
 import { isValidEmail, isValidPassword } from '../helpers/helpers'
+import { IUser } from '../common/interfaces'
 
 const { Schema } = mongoose
-
-export interface IUser {
-  _id: any
-  email: string
-  password: string
-  name?: string
-  birthDate?: string
-  role?: string
-  isActive?: boolean
-}
 
 const userSchema = new Schema(
   {
@@ -41,6 +32,12 @@ const userSchema = new Schema(
       type: String,
     },
     birthDate: {
+      type: String,
+    },
+    phone: {
+      type: String,
+    },
+    address: {
       type: String,
     },
     profileImgUrl: {

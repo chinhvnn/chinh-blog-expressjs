@@ -6,4 +6,5 @@ export enum MessageRes {
   PageNotFound = 'Page not found', //404
 
   JWTErrors = 'JWT errors',
+  InputErrors = 'Input errors',
 }

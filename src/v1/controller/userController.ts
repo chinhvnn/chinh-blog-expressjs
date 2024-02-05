@@ -1,15 +1,15 @@
 import { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import cloneDeep from 'lodash/fp/cloneDeep'
 
-import User, { IUser } from '../model/User'
-import { JWT_CONFIRM_CODE_EXPIRATION, PAGE_SIZE, ROLE, STATUS } from '../common/constant'
+import User from '../model/User'
+import { JWT_CONFIRM_CODE_EXPIRATION, PAGE_SIZE, ROLE, ROLE_LEVEL, STATUS } from '../common/constant'
 import { getPageCursor, isValidEmail, isValidId, isValidPassword, isValidRole } from '../helpers/helpers'
 import { mockUsers } from '../helpers/mockData'
 import { sendEmail, sendVerifyUserConfirmCode } from '../helpers/nodemailer'
-import { setRedisValue } from '../helpers/redis'
-import { IResponseJson } from '../common/interfaces'
+import { IResponseJson, IUser, IUserInput } from '../common/interfaces'
+import { MessageRes } from '../../utils/message-response'
 
 // Leader only get users of their team
 export const getUsers = (req: Request, res: Response) => {
@@ -91,33 +91,47 @@ export const registerUser = async (req: Request, res: Response) => {
 // Leader only delete user of their team
 export const deleteUser = (req: Request, res: Response) => {
   if (!isValidId(req.body._id)) {
-    return res.send(400).json({ message: STATUS.FAIL, errors: 'Invalid id' })
+    return res.send(400).json({ status: STATUS.FAIL, message: 'Invalid id' })
   }
 
   User.findByIdAndDelete({ _id: req.body._id })
     .then((data: any) => {
       if (data.deletedCount) {
-        res.json({ message: STATUS.SUCCESS, data })
+        res.json({ status: STATUS.SUCCESS, data })
       } else {
-        res.json({ message: STATUS.FAIL, errors: { message: 'This item does not exist', data } })
+        res.status(500).json({ status: STATUS.FAIL, errors: { message: 'This item does not exist', data } })
       }
     })
     .catch((errors: any) => {
-      res.status(500).json({ message: STATUS.FAIL, errors })
+      res.status(500).json({ status: STATUS.FAIL, errors })
     })
 }
 
-export const updateUser = (req: Request, res: Response) => {
+export const updateUser = async (req: Request | any, res: Response) => {
   if (!isValidId(req.body._id)) {
-    return res.status(400).json({ message: STATUS.FAIL, errors: 'Invalid id' })
+    return res.status(400).send({ status: STATUS.FAIL, errors: 'Invalid id' })
   }
 
-  User.updateOne({ _id: req.body._id }, { password: req.body.password }, { runValidators: true })
+  const userInput = {} as IUserInput
+  Object.keys(req.body).map((key) => {
+    if (
+      ['name', 'password', 'birthDate', 'phone', 'address', 'isActive'].includes(key) &&
+      typeof req.body[key] !== 'undefined'
+    ) {
+      userInput[key] = req.body[key]
+    }
+  })
+
+  if (Object.keys(userInput).length === 0) {
+    return res.status(400).send({ status: STATUS.FAIL, message: MessageRes.InputErrors })
+  }
+
+  User.updateOne({ _id: req.body._id }, userInput, { runValidators: true })
     .then((data: any) => {
-      res.json({ message: STATUS.SUCCESS, data })
+      res.send({ status: STATUS.SUCCESS, data })
     })
     .catch((errors: any) => {
-      res.status(500).json({ message: STATUS.FAIL, errors })
+      res.status(500).send({ status: STATUS.FAIL, errors })
     })
 }
 

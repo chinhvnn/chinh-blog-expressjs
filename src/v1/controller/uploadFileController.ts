@@ -1,18 +1,12 @@
 import { Request, Response } from 'express'
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
 
-import { formatCurrentTimestamp } from '../../utils/date-time'
 import { IResponseJson, MulterRequest } from '../common/interfaces'
 import { STATUS, TARGET_UPLOAD } from '../common/constant'
 import User from '../model/User'
-import { Model } from 'mongoose'
-import { getFirebaseStorageUrl } from '../helpers/uploadFile'
+import { uploadSingleFile } from '../helpers/uploadFile'
 
-export const uploadSingleFile = async (req: any, res: Response) => {
+export const uploadSingleFileController = async (req: any, res: Response) => {
   try {
-    // Initialize Cloud Storage and get a reference to the service
-    const storage = getStorage()
-
     if (!req.file) {
       return res.status(400).json({
         status: STATUS.FAIL,
@@ -20,21 +14,7 @@ export const uploadSingleFile = async (req: any, res: Response) => {
       } as IResponseJson)
     }
 
-    const url = getFirebaseStorageUrl(req)
-
-    const storageRef = ref(storage, url)
-
-    // Create file metadata including the content type
-    const metadata = {
-      contentType: req.file.mimetype,
-    }
-
-    // Upload the file in the bucket storage
-    const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata)
-    //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
-
-    // Grab the public url
-    const downloadURL = await getDownloadURL(snapshot.ref)
+    const downloadURL = await uploadSingleFile(req)
 
     // Set database
     setDatabase(req.params.target, req.body.decodedId, downloadURL)
