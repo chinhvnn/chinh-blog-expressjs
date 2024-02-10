@@ -11,6 +11,25 @@ import { sendEmail, sendVerifyUserConfirmCode } from '../helpers/nodemailer'
 import { IResponseJson, IUser, IUserInput } from '../common/interfaces'
 import { MessageRes } from '../../utils/message-response'
 
+// Get login user
+export const getLoginUser = (req: Request, res: Response) => {
+  if (!isValidId(req.body.decodedId)) {
+    return res.status(400).json({ result: STATUS.FAIL, errors: 'Invalid id' } as IResponseJson)
+  }
+
+  User.findById({ _id: req.body.decodedId })
+    .then((data: any) => {
+      if (data) {
+        res.json({ result: STATUS.SUCCESS, data } as IResponseJson)
+      } else {
+        res.json({ result: STATUS.NOT_FOUND, data } as IResponseJson)
+      }
+    })
+    .catch((errors: any) => {
+      res.status(500).json({ result: STATUS.FAIL, errors } as IResponseJson)
+    })
+}
+
 // Leader only get users of their team
 export const getUsers = (req: Request, res: Response) => {
   const pageCursor = getPageCursor(req.query.page)
@@ -21,34 +40,34 @@ export const getUsers = (req: Request, res: Response) => {
       if (data.length > 0) {
         const pageData = data.length > PAGE_SIZE ? [...data].slice(0, PAGE_SIZE - 1) : data
         res.json({
-          status: STATUS.SUCCESS,
+          result: STATUS.SUCCESS,
           data: { users: pageData, pageInfo: { ...pageCursor, hasNextPages: data.length > PAGE_SIZE } },
         } as IResponseJson)
       } else {
-        res.json({ status: STATUS.NOT_FOUND, data } as IResponseJson)
+        res.json({ result: STATUS.NOT_FOUND, data } as IResponseJson)
       }
     })
     .catch((errors: any) => {
-      res.status(500).json({ status: STATUS.FAIL, errors } as IResponseJson)
+      res.status(500).json({ result: STATUS.FAIL, errors } as IResponseJson)
     })
 }
 
 // Leader only get user of their team
 export const getUserById = (req: Request, res: Response) => {
   if (!isValidId(req.params._id)) {
-    return res.status(400).json({ status: STATUS.FAIL, errors: 'Invalid id' } as IResponseJson)
+    return res.status(400).json({ result: STATUS.FAIL, errors: 'Invalid id' } as IResponseJson)
   }
 
   User.findById({ _id: req.params._id })
     .then((data: any) => {
       if (data) {
-        res.json({ status: STATUS.SUCCESS, data } as IResponseJson)
+        res.json({ result: STATUS.SUCCESS, data } as IResponseJson)
       } else {
-        res.json({ status: STATUS.NOT_FOUND, data } as IResponseJson)
+        res.json({ result: STATUS.NOT_FOUND, data } as IResponseJson)
       }
     })
     .catch((errors: any) => {
-      res.status(500).json({ status: STATUS.FAIL, errors } as IResponseJson)
+      res.status(500).json({ result: STATUS.FAIL, errors } as IResponseJson)
     })
 }
 
@@ -61,7 +80,7 @@ export const registerUser = async (req: Request, res: Response) => {
     validations.push('Invalid email or password format')
   }
   if (validations.length > 0) {
-    return res.status(400).json({ status: STATUS.FAIL, message: validations })
+    return res.status(400).json({ result: STATUS.FAIL, message: validations })
   }
 
   const salt = bcrypt.genSaltSync(10)
@@ -80,36 +99,36 @@ export const registerUser = async (req: Request, res: Response) => {
   user
     .save()
     .then((data: any) => {
-      res.json({ status: STATUS.SUCCESS, data })
+      res.json({ result: STATUS.SUCCESS, data })
       sendVerifyUserConfirmCode(data)
     })
     .catch((errors: any) => {
-      res.status(500).json({ status: STATUS.FAIL, errors })
+      res.status(500).json({ result: STATUS.FAIL, errors })
     })
 }
 
 // Leader only delete user of their team
 export const deleteUser = (req: Request, res: Response) => {
   if (!isValidId(req.body._id)) {
-    return res.send(400).json({ status: STATUS.FAIL, message: 'Invalid id' })
+    return res.send(400).json({ result: STATUS.FAIL, message: 'Invalid id' })
   }
 
   User.findByIdAndDelete({ _id: req.body._id })
     .then((data: any) => {
       if (data.deletedCount) {
-        res.json({ status: STATUS.SUCCESS, data })
+        res.json({ result: STATUS.SUCCESS, data })
       } else {
-        res.status(500).json({ status: STATUS.FAIL, errors: { message: 'This item does not exist', data } })
+        res.status(500).json({ result: STATUS.FAIL, errors: { message: 'This item does not exist', data } })
       }
     })
     .catch((errors: any) => {
-      res.status(500).json({ status: STATUS.FAIL, errors })
+      res.status(500).json({ result: STATUS.FAIL, errors })
     })
 }
 
 export const updateUser = async (req: Request | any, res: Response) => {
   if (!isValidId(req.body._id)) {
-    return res.status(400).send({ status: STATUS.FAIL, errors: 'Invalid id' })
+    return res.status(400).send({ result: STATUS.FAIL, errors: 'Invalid id' })
   }
 
   const userInput = {} as IUserInput
@@ -128,18 +147,18 @@ export const updateUser = async (req: Request | any, res: Response) => {
 
   User.updateOne({ _id: req.body._id }, userInput, { runValidators: true })
     .then((data: any) => {
-      res.send({ status: STATUS.SUCCESS, data })
+      res.send({ result: STATUS.SUCCESS, data })
     })
     .catch((errors: any) => {
-      res.status(500).send({ status: STATUS.FAIL, errors })
+      res.status(500).send({ result: STATUS.FAIL, errors })
     })
 }
 
 export const mockUsersController = async (req: Request, res: Response) => {
   if (req.body.userNumber) {
     const data = await mockUsers(parseInt(req.body.userNumber))
-    res.json({ status: STATUS.SUCCESS, data })
+    res.json({ result: STATUS.SUCCESS, data })
   } else {
-    res.status(400).json({ status: STATUS.FAIL, message: 'Invalid user number' })
+    res.status(400).json({ result: STATUS.FAIL, message: 'Invalid user number' })
   }
 }

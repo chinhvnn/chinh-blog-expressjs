@@ -21,10 +21,11 @@ import {
   setRedisValue,
 } from '../helpers/redis'
 import { sendVerifyUserConfirmCode } from '../helpers/nodemailer'
+import { IResponseJson } from '../common/interfaces'
 
 export const postLogin = async (req: Request, res: Response) => {
   if (!isValidEmail(req.body.email) || !isValidPassword(req.body.password)) {
-    return res.json({ status: STATUS.FAIL, message: 'Invalid email or password format' })
+    return res.json({ result: STATUS.FAIL, message: 'Invalid email or password format' } as IResponseJson)
   }
 
   User.findOne({ email: req.body.email })
@@ -41,23 +42,23 @@ export const postLogin = async (req: Request, res: Response) => {
           setRedisValue(formatRedisActiveTokenKey(token, user._id), `"${token}"`, { EX: JWT_TOKEN_EXPIRATION })
             .then((result) => {
               if (result === REDIS_RESULT.OK) {
-                res.json({ status: STATUS.SUCCESS, data: user, token: formatToken(token) })
+                res.json({ result: STATUS.SUCCESS, data: user, token: formatToken(token) } as IResponseJson)
               } else {
-                res.status(500).json({ status: STATUS.FAIL, message: 'redis error' })
+                res.status(500).json({ result: STATUS.FAIL, message: 'redis error' } as IResponseJson)
               }
             })
             .catch((errors: any) => {
-              res.status(500).json({ status: STATUS.FAIL, message: 'redis error' })
+              res.status(500).json({ result: STATUS.FAIL, message: 'redis error' } as IResponseJson)
             })
         } else {
-          res.json({ status: STATUS.FAIL, message: 'Wrong password or User not activated' })
+          res.json({ result: STATUS.FAIL, message: 'Wrong password or User not activated' } as IResponseJson)
         }
       } else {
-        return res.json({ status: STATUS.FAIL, message: 'Email does not exist' })
+        return res.json({ result: STATUS.FAIL, message: 'Email does not exist' } as IResponseJson)
       }
     })
     .catch((errors: any) => {
-      res.status(500).json({ status: STATUS.FAIL, message: errors })
+      res.status(500).json({ result: STATUS.FAIL, message: errors } as IResponseJson)
     })
 }
 
@@ -67,9 +68,9 @@ export const postLogout = async (req: Request, res: Response) => {
   // save blacklist token redis value
   const result = await setRedisValue(formatRedisBlackListTokenKey(token, req.body.decodedId), `"${token}"`)
   if (result === REDIS_RESULT.OK) {
-    res.json({ status: STATUS.SUCCESS })
+    res.json({ result: STATUS.SUCCESS } as IResponseJson)
   } else {
-    res.status(500).json({ status: STATUS.FAIL, message: 'Redis errors' })
+    res.status(500).json({ result: STATUS.FAIL, message: 'Redis errors' } as IResponseJson)
   }
 }
 
@@ -87,13 +88,13 @@ export const postLogoutAll = async (req: Request, res: Response) => {
             }
           })
           .catch((errors) => {
-            res.status(500).json({ status: STATUS.FAIL, message: errors })
+            res.status(500).json({ result: STATUS.FAIL, message: errors } as IResponseJson)
           })
       }
     }
-    res.json({ status: STATUS.SUCCESS, data: activeKeys })
+    res.json({ result: STATUS.SUCCESS, data: activeKeys } as IResponseJson)
   } else {
-    res.status(500).json({ status: STATUS.FAIL })
+    res.status(500).json({ result: STATUS.FAIL } as IResponseJson)
   }
 }
 
@@ -101,7 +102,7 @@ export const sendVerifyUserConfirmCodeToEmail = async (req: Request, res: Respon
   const { email } = req.params as any
 
   if (!isValidEmail(email)) {
-    return res.json({ status: STATUS.FAIL, message: 'Invalid email' })
+    return res.json({ result: STATUS.FAIL, message: 'Invalid email' } as IResponseJson)
   }
 
   User.findOne({ email: req.body.email })
@@ -111,18 +112,19 @@ export const sendVerifyUserConfirmCodeToEmail = async (req: Request, res: Respon
       }
     })
     .catch((err) => {
-      res.status(500).json({ status: STATUS.FAIL, message: err })
+      res.status(500).json({ result: STATUS.FAIL, message: err } as IResponseJson)
     })
 }
 
 export const verifyUser = async (req: Request, res: Response) => {
   const { confirm_code } = req.params as any
 
-  if (!confirm_code) return res.status(401).json({ status: STATUS.FAIL, message: 'Invalid Confirm code' })
+  if (!confirm_code)
+    return res.status(401).json({ result: STATUS.FAIL, message: 'Invalid Confirm code' } as IResponseJson)
 
   jwt.verify(confirm_code, process.env.TOKEN_SECRET || '', async (errors: any, decoded: any) => {
     if (errors) {
-      return res.status(400).json({ status: STATUS.FAIL, message: errors })
+      return res.status(400).json({ result: STATUS.FAIL, message: errors } as IResponseJson)
     } else if (decoded) {
       const { email } = decoded
       try {
@@ -136,16 +138,16 @@ export const verifyUser = async (req: Request, res: Response) => {
           )
           if (updateUser) {
             await removeRedisValue(`confirm-code-${email}`)
-            return res.json({ status: STATUS.SUCCESS, data: updateUser })
+            return res.json({ result: STATUS.SUCCESS, data: updateUser } as IResponseJson)
           } else {
-            return res.status(500).json({ status: STATUS.FAIL })
+            return res.status(500).json({ result: STATUS.FAIL } as IResponseJson)
           }
         } else {
-          return res.status(401).json({ status: STATUS.FAIL, message: 'Access Denied' })
+          return res.status(401).json({ result: STATUS.FAIL, message: 'Access Denied' } as IResponseJson)
         }
       } catch (error) {
-        return res.status(500).json({ status: STATUS.FAIL, message: error })
+        return res.status(500).json({ result: STATUS.FAIL, message: error } as IResponseJson)
       }
-    } else return res.status(401).json({ status: STATUS.FAIL, message: 'Access Denied' })
+    } else return res.status(401).json({ result: STATUS.FAIL, message: 'Access Denied' } as IResponseJson)
   })
 }

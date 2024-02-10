@@ -47,6 +47,12 @@ try {
 // Initialize a firebase application
 initializeApp(firebaseConfig)
 
+// // Fix cors
+// app.use(function (req, res, next) {
+//   req.header['Access-Control-Allow-Origin'] = '*'
+//   next()
+// })
+
 // Router
 app.use('/', webRouter)
 app.use(`/api/${APP_VERSION}`, publicV1Router)
@@ -68,7 +74,7 @@ app.use(function (err: any, req: express.Request, res: express.Response, next: a
   // render the error page
   res.status(err.status || 500)
   res.json({
-    status: STATUS.FAIL,
+    result: STATUS.FAIL,
     err,
     request: { url: req.url, method: req.method, body: req.body, params: req.params },
   })

@@ -9,7 +9,7 @@ export const uploadSingleFileController = async (req: any, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({
-        status: STATUS.FAIL,
+        result: STATUS.FAIL,
         message: 'No file uploaded',
       } as IResponseJson)
     }
@@ -20,7 +20,7 @@ export const uploadSingleFileController = async (req: any, res: Response) => {
     setDatabase(req.params.target, req.body.decodedId, downloadURL)
       .then((data: any) => {
         return res.send({
-          status: STATUS.SUCCESS,
+          result: STATUS.SUCCESS,
           message: 'file uploaded to firebase storage',
           data: {
             name: req.file.originalname,
@@ -30,11 +30,11 @@ export const uploadSingleFileController = async (req: any, res: Response) => {
         })
       })
       .catch((errors: any) => {
-        res.status(500).json({ status: STATUS.FAIL, message: 'Error when save database', errors })
+        res.status(500).json({ result: STATUS.FAIL, message: 'Error when save database', errors } as IResponseJson)
       })
   } catch (error) {
     return res.status(400).json({
-      status: STATUS.FAIL,
+      result: STATUS.FAIL,
       errors: error,
     } as IResponseJson)
   }

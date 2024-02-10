@@ -3,7 +3,7 @@ export interface MulterRequest extends Request {
 }
 
 export interface IResponseJson {
-  status: string
+  result: string
   data?: any
   message?: string
   errors?: any

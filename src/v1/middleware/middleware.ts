@@ -13,11 +13,11 @@ import { MessageRes } from '../../utils/message-response'
 export const authMiddleware = async (req: Request, res: Response, next: any) => {
   const token = getTokenFromHeader(req.header(JWT_HEADER_NAME || '') || '')
 
-  if (!token) return res.status(401).json({ status: STATUS.FAIL, message: MessageRes.AccessDenied })
+  if (!token) return res.status(401).json({ result: STATUS.FAIL, message: MessageRes.JWTErrors })
 
   jwt.verify(token, process.env.TOKEN_SECRET || '', async (errors: any, decoded: any) => {
     if (errors) {
-      return res.status(400).json({ status: STATUS.FAIL, message: MessageRes.JWTErrors, errors })
+      return res.status(400).json({ result: STATUS.FAIL, message: MessageRes.JWTErrors, errors })
     } else if (decoded) {
       const { _id, role } = decoded
       req.body.decodedId = _id
@@ -27,7 +27,7 @@ export const authMiddleware = async (req: Request, res: Response, next: any) => 
 
       if (!isBlacklistToken) {
         next()
-      } else return res.status(401).json({ status: STATUS.FAIL, message: MessageRes.AccessDenied })
+      } else return res.status(401).json({ result: STATUS.FAIL, message: MessageRes.JWTErrors })
     }
   })
 }
@@ -39,7 +39,7 @@ export const permitUserLogin = (permittedRoles: string[]) => {
     if (decodedId === req.body._id || decodedId === req.params._id || permittedRoles.includes(decodedRole)) {
       next()
     } else {
-      return res.status(401).send({ status: STATUS.FAIL, message: MessageRes.AccessDenied })
+      return res.status(401).send({ result: STATUS.FAIL, message: MessageRes.AccessDenied })
     }
   }
 }
@@ -50,7 +50,7 @@ export const permitMiddleware = (permittedRoles: string[]) => {
     if (req.body.decodedRole && permittedRoles.includes(req.body.decodedRole)) {
       next()
     } else {
-      return res.status(401).json({ status: STATUS.FAIL, message: MessageRes.Unauthorized })
+      return res.status(401).json({ result: STATUS.FAIL, message: MessageRes.Unauthorized })
     }
   }
 }
@@ -59,7 +59,7 @@ export const permitMiddleware = (permittedRoles: string[]) => {
 export const uploadMiddleware = (req: any, res: Response, next: NextFunction) => {
   // Check target
   if (!req.params.target || !TARGET_UPLOAD[req.params.target]) {
-    return res.status(400).json({ status: STATUS.FAIL, message: MessageRes.PageNotFound })
+    return res.status(400).json({ result: STATUS.FAIL, message: MessageRes.PageNotFound })
   }
 
   // Initialize Cloud Storage and get a reference to the service
@@ -74,16 +74,15 @@ export const uploadMiddleware = (req: any, res: Response, next: NextFunction) =>
   return upload.single('file')(req as Request, res, (errors) => {
     if (errors instanceof multer.MulterError) {
       // A Multer error occurred when uploading.
-      return res.status(400).json({ status: STATUS.FAIL, message: 'A Multer error occurred when uploading', errors })
+      return res.status(400).json({ result: STATUS.FAIL, message: 'A Multer error occurred when uploading', errors })
     } else if (errors) {
       // An unknown error occurred when uploading.
-      return res.status(400).json({ status: STATUS.FAIL, message: 'An unknown error occurred when uploading', errors })
+      return res.status(400).json({ result: STATUS.FAIL, message: 'An unknown error occurred when uploading', errors })
     }
 
     // Everything went fine.
     req.body.decodedId = decodedId
     req.body.decodedRole = decodedRole
-    console.log('111 req.file', req.file)
 
     next()
   })
