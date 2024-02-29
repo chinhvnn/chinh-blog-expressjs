@@ -10,8 +10,9 @@ import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import { initializeApp } from 'firebase/app'
 import { getStorage } from 'firebase/storage'
-import { firebaseConfig } from './config/firebase.config'
+import cors from 'cors'
 
+import { firebaseConfig } from './config/firebase.config'
 import { APP_VERSION } from './config/dev.config'
 import adminV1Router from './routes/v1/api/adminV1Router'
 import publicV1Router from './routes/v1/api/publicV1Router'
@@ -52,6 +53,7 @@ initializeApp(firebaseConfig)
 //   req.header['Access-Control-Allow-Origin'] = '*'
 //   next()
 // })
+app.use(cors())
 
 // Router
 app.use('/', webRouter)
