@@ -26,6 +26,6 @@ const postSchema = new Schema(
   { strict: true },
 )
 
-const Post: mongoose.Model<IPost> = mongoose.model('Post', postSchema, 'post') as any
+const Post: mongoose.Model<IPost> = mongoose.model<IPost>('Post', postSchema, 'post')
 
 export default Post
