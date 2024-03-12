@@ -6,6 +6,7 @@ import multer from 'multer'
 
 import * as userController from '../../../v1/controller/userController'
 import * as postController from '../../../v1/controller/postController'
+import * as grayController from '../../../v1/controller/grayController'
 import { postLogout, postLogoutAll } from '../../../v1/controller/authController'
 import {
   authMiddleware,
@@ -37,6 +38,8 @@ adminV1Router.delete('/user', permitUserLogin(ROLE_LEVEL.ADMIN), userController.
 adminV1Router.post('/mock-user', permit(ROLE_LEVEL.ADMIN), userController.mockUsersController)
 
 adminV1Router.post('/upload-file/:target', uploadMiddleware, uploadSingleFileController)
+
+adminV1Router.post('/grays/:_id', grayController.payDownload)
 
 // adminV1Router.get('/posts', postController.getPosts)
 // adminV1Router.get('/post/:_id', postController.getPostById)

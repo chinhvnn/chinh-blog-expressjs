@@ -58,3 +58,26 @@ export interface IPost {
   rating?: IRating[]
   comment?: IComment[]
 }
+
+export interface IGrayGroup {
+  _id: Schema.Types.ObjectId
+  name: string
+}
+
+export interface IGrayCategory {
+  _id: Schema.Types.ObjectId
+  name: string
+  // group: IGrayGroup
+}
+
+export interface IGray {
+  _id: Schema.Types.ObjectId
+  name: string
+  createdAt: string
+  category: IGrayCategory
+  author: IUser
+  cost: number
+  downloadLink?: string
+  // rating?: IRating
+  // comment?: IComment[]
+}
